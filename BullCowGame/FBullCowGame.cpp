@@ -3,6 +3,7 @@ The game is a simple guess the word game based on mastermind.
 */
 
 #pragma once
+
 #include "FBullCowGame.h"
 #include <map>// copy paste <map> code on top here, making std:map accessible
 #define TMap std::map//textual replacement of TMap for all std::map
