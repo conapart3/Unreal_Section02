@@ -16,6 +16,7 @@ void PrintIntro();
 FText GetValidGuess();
 void PlayGame();
 bool AskToPlayAgain();
+void PrintGameSummary();
 
 FBullCowGame BCGame; // instantiate a new game
 
@@ -38,6 +39,7 @@ void PrintIntro()
 	std::cout << "Can you guess the " << BCGame.GetHiddenWordLength() << " letter isogram I'm thinking of?\n";
 }
 
+// Loop asking for guesses while the game is not won and there are still tries remaining.
 void PlayGame()
 {
 	// Reset the game.
@@ -49,16 +51,16 @@ void PlayGame()
 
 	// loop for the number of turns asking for guesses
 	// TODO change from for to while loop once we are validating tries
-	constexpr int32 numberOfTurns = 5;
-	for (int32 i = 0; i < numberOfTurns; i++) 
+	while (!BCGame.IsGameWon() && BCGame.GetCurrentTry() <= maxTries)
 	{
 		// Get guess from the player
 		Guess = GetValidGuess(); // TODO make loop checking valid
 
 		// submit valid guess to the game
-		FBullCowCount BullCowCount = BCGame.SubmitGuess(Guess);
+		FBullCowCount BullCowCount = BCGame.SubmitValidGuess(Guess);
 
 		//print num of bulls & cows
+		std::cout << "RESULTS:-----------------\n";
 		std::cout << "Bulls: " << BullCowCount.Bulls << std::endl;
 		std::cout << "Cows: " << BullCowCount.Cows << std::endl;
 		std::cout << "Your guess was: " << Guess << "\n\n";
@@ -68,16 +70,17 @@ void PlayGame()
 	}
 
 	// TODO summarise the game
+	PrintGameSummary();
 }
 
 // Loop continually until the user gives a valid guess
 FText GetValidGuess()
 {
+	FText Guess = "";
 	EGuessStatus Status = EGuessStatus::Invalid_Status;
 	do {
 		int32 currentTry = BCGame.GetCurrentTry();
-		std::cout << "Your current try is: " << currentTry << "\nEnter your guess...";
-		FText Guess = "";
+		std::cout << "Your current try is: " << currentTry << "\nEnter your guess...\n";
 		std::getline(std::cin, Guess);
 
 		Status = BCGame.CheckGuessValidity(Guess);
@@ -85,7 +88,7 @@ FText GetValidGuess()
 		switch (Status)
 		{
 		case EGuessStatus::Wrong_Length:
-			std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word.\n\n";
+			std::cout << "\nError - Please enter a " << BCGame.GetHiddenWordLength() << " letter word.\n";
 			break;
 		case EGuessStatus::Not_Isogram:
 			std::cout << "Please enter a word witout repeating letters.\n\n";
@@ -95,19 +98,31 @@ FText GetValidGuess()
 			break;
 		default:
 			// assume the guess is valid
-			//break;
-			return Guess;
+			break;
+			//return Guess;
 		}
 		std::cout << std::endl;
 	} while (Status != EGuessStatus::OK); // Keep looping until we get valid input (or no errors)
+	return Guess;
 }
 
 bool AskToPlayAgain()
 {
 	FText yesOrNo = "";
-	std::cout << "Do you want to play again? y or n...\n";
+	std::cout << "\nDo you want to play again? y or n...\n";
 	std::cin;
 	std::getline(std::cin, yesOrNo);
 
 	return (yesOrNo[0] == 'y') || (yesOrNo[0] == 'Y');
+}
+
+void PrintGameSummary()
+{
+	if (BCGame.IsGameWon())
+	{
+		std::cout << "Congrats!";
+	}
+	else {
+		std::cout << "Unlucky!";
+	}
 }
