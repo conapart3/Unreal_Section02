@@ -1,3 +1,8 @@
+/* The game logic (no view code or direct user interaction)
+The game is a simple guess the word game based on mastermind.
+*/
+
+#pragma once
 #include "FBullCowGame.h"
 #include <map>// copy paste <map> code on top here, making std:map accessible
 #define TMap std::map//textual replacement of TMap for all std::map
@@ -6,12 +11,13 @@
 //1. its another way to do it, a cut and paste
 //2. have to get involved with parameters for TMap
 
+// To make the syntax Unreal friendly.
 using int32 = int;
+using FString = std::string;
 
 FBullCowGame::FBullCowGame() { Reset(); }
 
 int32 FBullCowGame::GetHiddenWordLength() const { return MyHiddenWord.length(); }
-int32 FBullCowGame::GetMaxTries() const { return MyMaxTries; }
 int32 FBullCowGame::GetCurrentTry() const { return MyCurrentTry; }
 void FBullCowGame::incrementCurrentTry() { MyCurrentTry++; }
 bool FBullCowGame::IsGameWon() const { return bGameWon; }
@@ -20,16 +26,19 @@ void FBullCowGame::Reset()
 {
 	// we should establish constants as much as possible.
 	// constexpr are known at compile time.
-	constexpr int32 MAX_TRIES = 8;
 	const FString HIDDEN_WORD = "planet";
-	
 	MyHiddenWord = HIDDEN_WORD;
-	MyMaxTries = MAX_TRIES;
 	MyCurrentTry = 1;
 	bGameWon = false;
 	return;
 }
 
+int32 FBullCowGame::GetMaxTries() const
+{
+	TMap<int32, int32> WordLengthToMaxTries{ {3,5},{4,7},{5,10},{6,15},{7,20} };
+	
+	return WordLengthToMaxTries[MyHiddenWord.length()];
+}
 
 // Inside the game logic we use FString as std::string, not FText
 EGuessStatus FBullCowGame::CheckGuessValidity(FString Guess)
@@ -51,7 +60,7 @@ EGuessStatus FBullCowGame::CheckGuessValidity(FString Guess)
 		return EGuessStatus::OK;
 	}
 
-	return EGuessStatus::OK; // todo: make actual error
+	return EGuessStatus::OK;
 }
 
 // Receives a valid guess, increments

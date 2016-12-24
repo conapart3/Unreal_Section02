@@ -2,7 +2,7 @@
 This acts as the view in a MVC pattern and is responsible for all 
 user interaction. For game logic see the FBullCowGame class.
 */
-
+#pragma once
 #include <iostream>
 #include <string>
 #include "FBullCowGame.h"
@@ -11,14 +11,14 @@ user interaction. For game logic see the FBullCowGame class.
 using FText = std::string;
 using int32 = int;
 
-// Contract / Overview of what we are going to implement below main entrypoint.
+// Function prototypes as outside a class
 void PrintIntro();
 FText GetValidGuess();
 void PlayGame();
 bool AskToPlayAgain();
 void PrintGameSummary();
 
-FBullCowGame BCGame; // instantiate a new game
+FBullCowGame BCGame; // instantiate a new game which we *re-use across plays*
 
 // App entrypoint
 int main()
@@ -35,14 +35,19 @@ int main()
 
 void PrintIntro()
 {
-	std::cout << "Hello you big cunt" << std::endl;
+	std::cout << "Hello you big cunt" << "\n\n";
+	std::cout << "          }   {         ___ " << std::endl;
+	std::cout << "          (o o)        (o o) " << std::endl;
+	std::cout << "   /-------\\ /          \\ /-------\\ " << std::endl;
+	std::cout << "  / | BULL |O            O| COW  | \\ " << std::endl;
+	std::cout << " *  |-,--- |              |------|  * " << std::endl;
+	std::cout << "    ^      ^              ^      ^ " << std::endl;
 	std::cout << "Can you guess the " << BCGame.GetHiddenWordLength() << " letter isogram I'm thinking of?\n";
 }
 
-// Loop asking for guesses while the game is not won and there are still tries remaining.
+// Plays a single game until completion
 void PlayGame()
 {
-	// Reset the game.
 	BCGame.Reset();
 
 	FText Guess = "";
@@ -50,11 +55,9 @@ void PlayGame()
 	std::cout << maxTries << std::endl;
 
 	// loop for the number of turns asking for guesses
-	// TODO change from for to while loop once we are validating tries
 	while (!BCGame.IsGameWon() && BCGame.GetCurrentTry() <= maxTries)
 	{
-		// Get guess from the player
-		Guess = GetValidGuess(); // TODO make loop checking valid
+		Guess = GetValidGuess();
 
 		// submit valid guess to the game
 		FBullCowCount BullCowCount = BCGame.SubmitValidGuess(Guess);
@@ -69,7 +72,6 @@ void PlayGame()
 		BCGame.incrementCurrentTry();
 	}
 
-	// TODO summarise the game
 	PrintGameSummary();
 }
 
@@ -78,9 +80,9 @@ FText GetValidGuess()
 {
 	FText Guess = "";
 	EGuessStatus Status = EGuessStatus::Invalid_Status;
-	do {
+	do {		
 		int32 currentTry = BCGame.GetCurrentTry();
-		std::cout << "Your current try is: " << currentTry << "\nEnter your guess...\n";
+		std::cout << "Your current try is: " << currentTry << " of " << BCGame.GetMaxTries() << "\nEnter your guess...\n";
 		std::getline(std::cin, Guess);
 
 		Status = BCGame.CheckGuessValidity(Guess);
